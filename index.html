@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مقياس الذكاءات الأربعة</title>
+    <style>
+        :root {
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --logic: #3b82f6;
+            --academic: #8b5cf6;
+            --creative: #f59e0b;
+            --physical: #10b981;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: var(--card);
+            width: 100%;
+            max-width: 720px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            padding: 32px;
+            border: 1px solid var(--border);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        h1, h2, h3 {
+            color: var(--text);
+            margin-bottom: 12px;
+        }
+
+        p {
+            color: var(--muted);
+            margin-bottom: 20px;
+        }
+
+        /* شاشة الترحيب */
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .welcome-header h1 {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .types-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        .type-card {
+            padding: 16px;
+            border-radius: 12px;
+            background: #f8fafc;
+            border-right: 4px solid var(--primary);
+        }
+
+        .type-card.logic { border-color: var(--logic); }
+        .type-card.academic { border-color: var(--academic); }
+        .type-card.creative { border-color: var(--creative); }
+        .type-card.physical { border-color: var(--physical); }
+
+        .type-card h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .type-card p {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 14px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            text-align: center;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+        }
+
+        .btn:active:not(:disabled) {
+            transform: scale(0.99);
+        }
+
+        .btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+
+        /* شاشة الاختبار */
+        .quiz-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            gap: 10px;
+        }
+
+        .category-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--muted);
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .option-btn {
+            padding: 15px 18px;
+            text-align: right;
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary);
+            background: #eef2ff;
+        }
+
+        .option-btn.selected {
+            border-color: var(--primary);
+            background: #e0e7ff;
+            font-weight: bold;
+        }
+
+        /* الاختبارات التفاعلية للذكاء البدني */
+        .interactive-box {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 14px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .reaction-area {
+            width: 100%;
+            height: 180px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+            margin-top: 12px;
+            transition: background 0.1s;
+        }
+
+        .reaction-idle { background: #475569; }
+        .reaction-wait { background: #ef4444; }
+        .reaction-go { background: #10b981; }
+
+        .target-arena {
+            position: relative;
+            width: 100%;
+            height: 230px;
+            background: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .target-dot {
+            position: absolute;
+            width: 42px;
+            height: 42px;
+            background: #10b981;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+            transition: transform 0.1s;
+        }
+
+        .target-dot:active {
+            transform: scale(0.85);
+        }
+
+        .game-status {
+            margin-top: 12px;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* شاشة النتائج */
+        .result-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .overall-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #e0e7ff;
+            color: var(--primary);
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .radar-container {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0 24px 0;
+        }
+
+        .scores-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .score-item {
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .score-item-top {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .mini-bar-bg {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .mini-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .score-advice {
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .disclaimer {
+            font-size: 0.8rem;
+            color: var(--muted);
+            text-align: center;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 1. شاشة الترحيب -->
+    <div id="welcome-screen">
+        <div class="welcome-header">
+            <h1>مقياس الذكاءات الأربعة</h1>
+            <p>اختبار شامل يجمع بين الألغاز الذهنية والتفاعلية لقياس قدراتك في 4 مجالات رئيسية</p>
+        </div>
+
+        <div class="types-grid">
+            <div class="type-card logic">
+                <h3>1. الذكاء المنطقي</h3>
+                <p>الاستنتاج، كشف الأنماط، وحل الألغاز المعقدة.</p>
+            </div>
+            <div class="type-card academic">
+                <h3>2. الذكاء الأكاديمي</h3>
+                <p>الفهم التحليلي، القياس اللغوي، والتفكير العلمي.</p>
+            </div>
+            <div class="type-card creative">
+                <h3>3. الذكاء الإبداعي</h3>
+                <p>التفكير خارج الصندوق وربط الأفكار المتباعدة.</p>
+            </div>
+            <div class="type-card physical">
+                <h3>4. الذكاء الرياضي البدني</h3>
+                <p>سرعة رد الفعل، التآزر البصري الحركي، والوعي المكاني.</p>
+            </div>
+        </div>
+
+        <button class="btn" onclick="startQuiz()">ابدأ الاختبار الآن (12 محطة)</button>
+        <p class="disclaimer">* هذا الاختبار نموذج تعليمي وتفاعلي لقياس وتنمية المهارات.</p>
+    </div>
+
+    <!-- 2. شاشة الاختبار -->
+    <div id="quiz-screen" class="hidden">
+        <div class="quiz-top">
+            <span id="category-badge" class="category-badge">الفئة</span>
+            <span id="progress-text" class="progress-text">1 / 12</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+
+        <div id="question-text" class="question-text">نص السؤال</div>
+
+        <!-- حاوية الأسئلة الاختيارية -->
+        <div id="options-container" class="options-list"></div>
+
+        <!-- حاوية الاختبارات البدنية التفاعلية -->
+        <div id="interactive-container" class="interactive-box hidden"></div>
+
+        <button id="next-btn" class="btn" disabled onclick="nextQuestion()">السؤال التالي</button>
+    </div>
+
+    <!-- 3. شاشة النتائج -->
+    <div id="result-screen" class="hidden">
+        <div class="result-header">
+            <div id="profile-title" class="overall-badge">ملفك الذهني</div>
+            <h2>نتائج تحليل الذكاءات الأربعة</h2>
+            <p id="overall-summary"></p>
+        </div>
+
+        <div class="radar-container">
+            <svg id="radar-svg" width="380" height="300" viewBox="0 0 380 300" style="direction: ltr; max-width: 100%;"></svg>
+        </div>
+
+        <div id="scores-breakdown" class="scores-breakdown"></div>
+
+        <button class="btn" onclick="restartQuiz()">إعادة الاختبار مرة أخرى</button>
+    </div>
+</div>
+
+<script>
+    const categoryInfo = {
+        logic: { name: "الذكاء المنطقي", color: "#3b82f6" },
+        academic: { name: "الذكاء الأكاديمي", color: "#8b5cf6" },
+        creative: { name: "الذكاء الإبداعي", color: "#f59e0b" },
+        physical: { name: "الذكاء الرياضي البدني", color: "#10b981" }
+    };
+
+    // بنك الأسئلة (3 أسئلة لكل نوع = المجموع 12)
+    const questions = [
+        // --- 1. المنطقي ---
+        {
+            category: "logic",
+            type: "mcq",
+            question: "في سباق جري، تمكنتَ من تجاوز المتسابق الذي كان في المركز الثاني. ما هو مركزك الآن؟",
+            options: [
+                { text: "المركز الأول", points: 0 },
+                { text: "المركز الثاني", points: 10 },
+                { text: "المركز الثالث", points: 0 },
+                { text: "لا يمكن التحديد", points: 0 }
+            ]
+        },
+        {
+            category: "logic",
+            type: "mcq",
+            question: "إذا كانت العبارة: (كل المبرمجين يجيدون المنطق) صحيحة، والعبارة: (بعض من يجيدون المنطق يحبون الشطرنج) صحيحة، فأي استنتاج مؤكد 100%؟",
+            options: [
+                { text: "كل المبرمجين يحبون الشطرنج", points: 0 },
+                { text: "بعض المبرمجين يحبون الشطرنج حتماً", points: 2 },
+                { text: "بعض محبي الشطرنج قد لا يكونون مبرمجين", points: 10 },
+                { text: "لا أحد من المبرمجين يحب الشطرنج", points: 0 }
+            ]
+        },
+        {
+            category: "logic",
+            type: "mcq",
+            question: "أمامك 3 صناديق مغلقة ملصق عليها: (تفاح)، (برتقال)، (تفاح وبرتقال). لكن جميع الملصقات خاطئة! إذا سُمح لك بسحب فاكهة واحدة من صندوق واحد فقط، أي صندوق تختار لتعرف محتوى الجميع؟",
+            options: [
+                { text: "الصندوق المكتوب عليه (تفاح)", points: 0 },
+                { text: "الصندوق المكتوب عليه (برتقال)", points: 0 },
+                { text: "الصندوق المكتوب عليه (تفاح وبرتقال)", points: 10 },
+                { text: "يستحيل المعرفة من سحبة واحدة", points: 0 }
+            ]
+        },
+
+        // --- 2. الأكاديمي ---
+        {
+            category: "academic",
+            type: "mcq",
+            question: "القياس اللغوي الأكاديمي: العلاقة بين (الدليل : المحقق) تشبه العلاقة بين:",
+            options: [
+                { text: "الفرشاة : اللوحة", points: 2 },
+                { text: "الفرضية : العالم", points: 10 },
+                { text: "الكتاب : المكتبة", points: 0 },
+                { text: "القلم : الورقة", points: 0 }
+            ]
+        },
+        {
+            category: "academic",
+            type: "mcq",
+            question: "أظهرت دراسة أن الطلاب الذين ينامون مبكراً يحققون درجات أعلى بنسبة 20%. أي تعليق علمي هو الأدق؟",
+            options: [
+                { text: "النوم المبكر هو السبب الوحيد للتفوق الدراسي", points: 0 },
+                { text: "هناك ارتباط إيجابي، وقد تتدخل عوامل أخرى كالانضباط وتنظيم الوقت", points: 10 },
+                { text: "السهر يسبب الفشل الأكاديمي دائماً", points: 0 },
+                { text: "الدراسة غير صالحة لأنها لم تشمل الجميع", points: 2 }
+            ]
+        },
+        {
+            category: "academic",
+            type: "mcq",
+            question: "تشير (اللدونة العصبية) إلى قدرة الدماغ على إعادة تشكيل روابطه عند تعلم مهارات جديدة طوال الحياة. ما الفكرة المخالفة لهذا المفهوم؟",
+            options: [
+                { text: "الممارسة المستمرة تقوي المسارات العصبية", points: 0 },
+                { text: "قدرات الدماغ تتجمد تماماً بعد سن العشرين ولا تتطور", points: 10 },
+                { text: "تعلم لغة جديدة يحفز خلايا الدماغ", points: 0 },
+                { text: "البيئة الغنية بالتحديات تطور الأداء الذهني", points: 0 }
+            ]
+        },
+
+        // --- 3. الإبداعي ---
+        {
+            category: "creative",
+            type: "mcq",
+            question: "اختبار الرابط البعيد: ما الكلمة الواحدة التي ترتبط عضوياً أو لغوياً مع الكلمات الثلاث التالية: (رمل - شمس - يد)؟",
+            options: [
+                { text: "بحر", points: 2 },
+                { text: "ساعة (ساعة رملية، ساعة شمسية، ساعة يد)", points: 10 },
+                { text: "ذهب", points: 0 },
+                { text: "قمر", points: 0 }
+            ]
+        },
+        {
+            category: "creative",
+            type: "mcq",
+            question: "تشتكي شركة من بطء المصعد وتذمر الموظفين من طول الانتظار. ما الحل الأكثر إبداعاً وأقل تكلفة لحل مشكلة (الشعور بالملل)؟",
+            options: [
+                { text: "هدم الجدار وبناء مصعد ثانٍ سريع", points: 2 },
+                { text: "تركيب مرايا كبيرة بجانب المصعد ليشغل الناس أنفسهم بالنظر فيها", points: 10 },
+                { text: "إجبار الموظفين على صعود الدرج دائماً", points: 0 },
+                { text: "تقديم إنذار لكل موظف يتذمر", points: 0 }
+            ]
+        },
+        {
+            category: "creative",
+            type: "mcq",
+            question: "التفكير الجانبي: دخلتَ غرفة مظلمة تماماً وفيها مدفأة حطب، شمعة، ومصباح زيت، ومعك عود ثقاب واحد فقط. ماذا تشعل أولاً؟",
+            options: [
+                { text: "الشمعة لأنها الأسهل", points: 0 },
+                { text: "مصباح الزيت لأنه يدوم أطول", points: 0 },
+                { text: "عود الثقاب نفسه", points: 10 },
+                { text: "مدفأة الحطب", points: 0 }
+            ]
+        },
+
+        // --- 4. الرياضي البدني (تفاعلي + مكاني) ---
+        {
+            category: "physical",
+            type: "reaction",
+            question: "اختبار سرعة رد الفعل العصبي العضلي: اضغط (ابدأ)، وعندما يتحول الصندوق إلى اللون الأخضر اضغط بأقصى سرعة ممكنة!"
+        },
+        {
+            category: "physical",
+            type: "targets",
+            question: "اختبار التآزر البصري الحركي: اضغط (ابدأ)، ثم لاحق واضغط على 5 دوائر خضراء متتالية بأقصى سرعة ودقة!"
+        },
+        {
+            category: "physical",
+            type: "mcq",
+            question: "الوعي الحركي والمكاني: في الرياضات الجماعية، عندما يركض زميلك بسرعة للأمام وتريد تمرير الكرة له، أين تصوّب الكرة؟",
+            options: [
+                { text: "نحو المكان الذي يقف فيه الآن بالضبط", points: 0 },
+                { text: "خلفه لكي يضطر للتوقف", points: 0 },
+                { text: "في المساحة الفارغة أمامه بناءً على تقدير سرعته ومساره", points: 10 },
+                { text: "أعلى رأسه مباشرة", points: 2 }
+            ]
+        }
+    ];
+
+    let currentIndex = 0;
+    let selectedPoints = null;
+    let scores = { logic: 0, academic: 0, creative: 0, physical: 0 };
+    const maxScores = { logic: 30, academic: 30, creative: 30, physical: 30 };
+
+    // متغيرات الألعاب التفاعلية
+    let reactionTimeout = null;
+    let reactionStartTime = 0;
+    let reactionState = "idle"; // idle, wait, go, done
+
+    let targetsHits = 0;
+    let targetsStartTime = 0;
+
+    function startQuiz() {
+        currentIndex = 0;
+        scores = { logic: 0, academic: 0, creative: 0, physical: 0 };
+        document.getElementById("welcome-screen").classList.add("hidden");
+        document.getElementById("result-screen").classList.add("hidden");
+        document.getElementById("quiz-screen").classList.remove("hidden");
+        renderQuestion();
+    }
+
+    function restartQuiz() {
+        startQuiz();
+    }
+
+    function renderQuestion() {
+        clearTimeout(reactionTimeout);
+        selectedPoints = null;
+        const nextBtn = document.getElementById("next-btn");
+        nextBtn.disabled = true;
+        nextBtn.textContent = (currentIndex === questions.length - 1) ? "عرض النتيجة النهائية" : "السؤال التالي";
+
+        const q = questions[currentIndex];
+        const cat = categoryInfo[q.category];
+
+        const badge = document.getElementById("category-badge");
+        badge.textContent = cat.name;
+        badge.style.background = cat.color;
+
+        document.getElementById("progress-text").textContent = `${currentIndex + 1} / ${questions.length}`;
+        document.getElementById("progress-bar-fill").style.width = `${((currentIndex + 1) / questions.length) * 100}%`;
+        document.getElementById("question-text").textContent = q.question;
+
+        const optionsContainer = document.getElementById("options-container");
+        const interactiveContainer = document.getElementById("interactive-container");
+
+        optionsContainer.innerHTML = "";
+        interactiveContainer.innerHTML = "";
+
+        if (q.type === "mcq") {
+            optionsContainer.classList.remove("hidden");
+            interactiveContainer.classList.add("hidden");
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "option-btn";
+                btn.textContent = opt.text;
+                btn.onclick = () => {
+                    document.querySelectorAll(".option-btn").forEach(b => b.classList.remove("selected"));
+                    btn.classList.add("selected");
+                    selectedPoints = opt.points;
+                    nextBtn.disabled = false;
+                };
+                optionsContainer.appendChild(btn);
+            });
+        } else if (q.type === "reaction") {
+            optionsContainer.classList.add("hidden");
+            interactiveContainer.classList.remove("hidden");
+            setupReactionGame(interactiveContainer);
+        } else if (q.type === "targets") {
+            optionsContainer.classList.add("hidden");
+            interactiveContainer.classList.remove("hidden");
+            setupTargetsGame(interactiveContainer);
+        }
+    }
+
+    // لعبة 1: سرعة رد الفعل
+    function setupReactionGame(container) {
+        reactionState = "idle";
+        container.innerHTML = `
+            <button id="start-reaction-btn" class="btn" style="width:auto; padding:10px 24px;">ابدأ اختبار رد الفعل</button>
+            <div id="reaction-box" class="reaction-area reaction-idle">اضغط على زر البداية أولاً</div>
+            <div id="reaction-status" class="game-status"></div>
+        `;
+
+        const startBtn = document.getElementById("start-reaction-btn");
+        const box = document.getElementById("reaction-box");
+        const status = document.getElementById("reaction-status");
+
+        const runCycle = () => {
+            reactionState = "wait";
+            startBtn.classList.add("hidden");
+            box.className = "reaction-area reaction-wait";
+            box.textContent = "انتظر اللون الأخضر...";
+            status.textContent = "";
+
+            const delay = 1500 + Math.random() * 2200;
+            reactionTimeout = setTimeout(() => {
+                reactionState = "go";
+                reactionStartTime = performance.now();
+                box.className = "reaction-area reaction-go";
+                box.textContent = "اضغط الآن!";
+            }, delay);
+        };
+
+        startBtn.onclick = runCycle;
+
+        box.onclick = () => {
+            if (reactionState === "wait") {
+                clearTimeout(reactionTimeout);
+                reactionState = "idle";
+                box.className = "reaction-area reaction-idle";
+                box.textContent = "ضغطت مبكراً جداً! حاول مجدداً";
+                startBtn.classList.remove("hidden");
+                startBtn.textContent = "إعادة المحاولة";
+            } else if (reactionState === "go") {
+                const rt = Math.round(performance.now() - reactionStartTime);
+                reactionState = "done";
+                box.className = "reaction-area reaction-idle";
+                box.textContent = `سرعتك: ${rt} مللي ثانية`;
+
+                let pts = 4;
+                if (rt <= 260) pts = 10;
+                else if (rt <= 350) pts = 8;
+                else if (rt <= 450) pts = 6;
+
+                selectedPoints = pts;
+                status.textContent = `تم تسجيل النتيجة (${pts} / 10 نقاط). اضغط التالي للمتابعة.`;
+                document.getElementById("next-btn").disabled = false;
+            }
+        };
+    }
+
+    // لعبة 2: التآزر البصري الحركي
+    function setupTargetsGame(container) {
+        targetsHits = 0;
+        const totalTargets = 5;
+
+        container.innerHTML = `
+            <button id="start-targets-btn" class="btn" style="width:auto; padding:10px 24px;">ابدأ تمرين الأهداف (5 أهداف)</button>
+            <div id="target-arena" class="target-arena hidden"></div>
+            <div id="targets-status" class="game-status"></div>
+        `;
+
+        const startBtn = document.getElementById("start-targets-btn");
+        const arena = document.getElementById("target-arena");
+        const status = document.getElementById("targets-status");
+
+        function spawnTarget() {
+            arena.innerHTML = "";
+            const dot = document.createElement("div");
+            dot.className = "target-dot";
+
+            const maxLeft = arena.clientWidth - 52;
+            const maxTop = arena.clientHeight - 52;
+            const left = Math.max(10, Math.floor(Math.random() * maxLeft));
+            const top = Math.max(10, Math.floor(Math.random() * maxTop));
+
+            dot.style.left = left + "px";
+            dot.style.top = top + "px";
+
+            dot.onclick = () => {
+                targetsHits++;
+                if (targetsHits < totalTargets) {
+                    status.textContent = `الأهداف المصابة: ${targetsHits} / ${totalTargets}`;
+                    spawnTarget();
+                } else {
+                    const totalSec = ((performance.now() - targetsStartTime) / 1000).toFixed(2);
+                    arena.innerHTML = `<div style="color:white; padding-top:95px; font-weight:bold;">أحسنت! الزمن الكلي: ${totalSec} ثانية</div>`;
+
+                    let pts = 4;
+                    if (totalSec <= 3.5) pts = 10;
+                    else if (totalSec <= 4.8) pts = 8;
+                    else if (totalSec <= 6.5) pts = 6;
+
+                    selectedPoints = pts;
+                    status.textContent = `تم تسجيل التآزر الحركي (${pts} / 10 نقاط). اضغط عرض النتيجة.`;
+                    document.getElementById("next-btn").disabled = false;
+                }
+            };
+            arena.appendChild(dot);
+        }
+
+        startBtn.onclick = () => {
+            startBtn.classList.add("hidden");
+            arena.classList.remove("hidden");
+            targetsStartTime = performance.now();
+            status.textContent = `الأهداف المصابة: 0 / ${totalTargets}`;
+            spawnTarget();
+        };
+    }
+
+    function nextQuestion() {
+        const q = questions[currentIndex];
+        scores[q.category] += selectedPoints;
+        currentIndex++;
+
+        if (currentIndex < questions.length) {
+            renderQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById("quiz-screen").classList.add("hidden");
+        document.getElementById("result-screen").classList.remove("hidden");
+
+        const pct = {
+            logic: Math.round((scores.logic / maxScores.logic) * 100),
+            academic: Math.round((scores.academic / maxScores.academic) * 100),
+            creative: Math.round((scores.creative / maxScores.creative) * 100),
+            physical: Math.round((scores.physical / maxScores.physical) * 100)
+        };
+
+        const avg = Math.round((pct.logic + pct.academic + pct.creative + pct.physical) / 4);
+
+        // تحديد الذكاء السائد
+        const entries = Object.entries(pct).sort((a, b) => b[1] - a[1]);
+        const topType = categoryInfo[entries[0][0]].name;
+
+        document.getElementById("profile-title").textContent = `نقطة قوتك الأبرز: ${topType}`;
+        document.getElementById("overall-summary").textContent = `مؤشر التوازن الذهني العام لديك هو ${avg}% عبر المجالات الأربعة.`;
+
+        drawRadarChart(pct);
+        renderBreakdown(pct);
+    }
+
+    function drawRadarChart(pct) {
+        const svg = document.getElementById("radar-svg");
+        const cx = 190, cy = 150, r = 95;
+
+        // تحويل النسب (0..1) مع حد أدنى مرئي بسيط
+        const vLogic = Math.max(0.08, pct.logic / 100);
+        const vAcad = Math.max(0.08, pct.academic / 100);
+        const vCreat = Math.max(0.08, pct.creative / 100);
+        const vPhys = Math.max(0.08, pct.physical / 100);
+
+        let gridHTML = "";
+        [0.25, 0.5, 0.75, 1].forEach(level => {
+            const lr = r * level;
+            const pts = `${cx},${cy - lr} ${cx + lr},${cy} ${cx},${cy + lr} ${cx - lr},${cy}`;
+            gridHTML += `<polygon points="${pts}" fill="none" stroke="#cbd5e1" stroke-width="1"/>`;
+        });
+
+        // المحاور
+        gridHTML += `
+            <line x1="${cx}" y1="${cy - r}" x2="${cx}" y2="${cy + r}" stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${cx - r}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="#cbd5e1" stroke-width="1"/>
+        `;
+
+        // مضلع النتيجة
+        const p1 = `${cx},${cy - r * vLogic}`;
+        const p2 = `${cx + r * vAcad},${cy}`;
+        const p3 = `${cx},${cy + r * vCreat}`;
+        const p4 = `${cx - r * vPhys},${cy}`;
+
+        const dataPoly = `<polygon points="${p1} ${p2} ${p3} ${p4}" fill="rgba(79, 70, 229, 0.28)" stroke="#4f46e5" stroke-width="3"/>`;
+
+        const dots = `
+            <circle cx="${cx}" cy="${cy - r * vLogic}" r="5" fill="#3b82f6"/>
+            <circle cx="${cx + r * vAcad}" cy="${cy}" r="5" fill="#8b5cf6"/>
+            <circle cx="${cx}" cy="${cy + r * vCreat}" r="5" fill="#f59e0b"/>
+            <circle cx="${cx - r * vPhys}" cy="${cy}" r="5" fill="#10b981"/>
+        `;
+
+        const labels = `
+            <text x="${cx}" y="30" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">المنطقي (${pct.logic}%)</text>
+            <text x="${cx + r + 12}" y="${cy + 5}" text-anchor="start" font-size="13" font-weight="bold" fill="#0f172a">الأكاديمي (${pct.academic}%)</text>
+            <text x="${cx}" y="${cy + r + 28}" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">الإبداعي (${pct.creative}%)</text>
+            <text x="${cx - r - 12}" y="${cy + 5}" text-anchor="end" font-size="13" font-weight="bold" fill="#0f172a">البدني (${pct.physical}%)</text>
+        `;
+
+        svg.innerHTML = gridHTML + dataPoly + dots + labels;
+    }
+
+    function renderBreakdown(pct) {
+        const container = document.getElementById("scores-breakdown");
+        container.innerHTML = "";
+
+        const advices = {
+            logic: pct.logic >= 70 ? "قدرة ممتازة على كشف المغالطات والاستنتاج الدقيق." : "يمكنك تطويره بألعاب الشطرنج والألغاز المنطقية.",
+            academic: pct.academic >= 70 ? "تحليل علمي وفهم لغوي رفيع المستوى." : "القراءة التحليلية والربط بين المفاهيم سترفع مستواك.",
+            creative: pct.creative >= 70 ? "تفكير مرن ومبتكر في إيجاد حلول غير تقليدية." : "جرّب تمارين العصف الذهني وطرح أسئلة (ماذا لو؟).",
+            physical: pct.physical >= 70 ? "رد فعل سريع وتنسيق رائع بين العين واليد." : "التمارين الحركية وألعاب السرعة تقوي الاستجابة العصبية."
+        };
+
+        Object.keys(categoryInfo).forEach(key => {
+            const info = categoryInfo[key];
+            const val = pct[key];
+
+            const card = document.createElement("div");
+            card.className = "score-item";
+            card.innerHTML = `
+                <div class="score-item-top">
+                    <span>${info.name}</span>
+                    <span style="color:${info.color}">${val}%</span>
+                </div>
+                <div class="mini-bar-bg">
+                    <div class="mini-bar-fill" style="width:${val}%; background:${info.color};"></div>
+                </div>
+                <p class="score-advice">${advices[key]}</p>
+            `;
+            container.appendChild(card);
+        });
+    }
+</script>
+
+</body>
+</html>
